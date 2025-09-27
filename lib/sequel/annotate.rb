@@ -58,7 +58,8 @@ module Sequel
           current.slice!(0, magic_comments.length)
         end
 
-        current = current.gsub(/\A#\sTable[^\n\r]+\r?\n(?:#[^\n\r]*\r?\n)*/m, '').lstrip
+        # Remove existing annotations, including rubocop directives if present
+        current = current.gsub(/\A(?:#\s*rubocop:disable[^\n\r]*\r?\n)?#\sTable[^\n\r]+\r?\n(?:#[^\n\r]*\r?\n)*(?:#\s*rubocop:enable[^\n\r]*\r?\n)?/m, '').lstrip
         current = "#{magic_comments}#{schema_comment(options)}#{$/}#{$/}#{current}"
       else
         if m = current.reverse.match(/#{"#{$/}# Table: ".reverse}/m)
