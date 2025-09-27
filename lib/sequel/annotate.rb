@@ -80,7 +80,7 @@ module Sequel
       end
     end
 
-    # The schema comment to use for this model.  
+    # The schema comment to use for this model.
     # For all databases, includes columns, indexes, and foreign
     # key constraints in this table referencing other tables.
     # On PostgreSQL, also includes check constraints, triggers,
@@ -90,6 +90,7 @@ module Sequel
     # :border :: Include a border above and below the comment.
     # :indexes :: Do not include indexes in annotation if set to +false+.
     # :foreign_keys :: Do not include foreign key constraints in annotation if set to +false+.
+    # :disable_rubocop :: Wrap the annotation with rubocop disable/enable comments for Layout/LineLength if set to +true+.
     #
     # PostgreSQL-specific options:
     # :constraints :: Do not include check constraints if set to +false+.
@@ -117,6 +118,12 @@ module Sequel
         border = "# #{'-' * (output.map(&:size).max - 2)}"
         output.push(border)
         output.insert(1, border)
+      end
+
+      # Add rubocop disable/enable comments if specified
+      if options[:disable_rubocop]
+        output.unshift("# rubocop:disable Layout/LineLength")
+        output.push("# rubocop:enable Layout/LineLength")
       end
 
       output.join($/)
