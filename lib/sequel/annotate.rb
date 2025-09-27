@@ -90,7 +90,8 @@ module Sequel
     # :border :: Include a border above and below the comment.
     # :indexes :: Do not include indexes in annotation if set to +false+.
     # :foreign_keys :: Do not include foreign key constraints in annotation if set to +false+.
-    # :disable_rubocop :: Wrap the annotation with rubocop disable/enable comments for Layout/LineLength if set to +true+.
+    # :disable_rubocop :: Wrap the annotation with rubocop disable/enable comments for Layout/LineLength if set to +true+
+    #                     and any annotation lines exceed 120 characters.
     #
     # PostgreSQL-specific options:
     # :constraints :: Do not include check constraints if set to +false+.
@@ -120,10 +121,15 @@ module Sequel
         output.insert(1, border)
       end
 
-      # Add rubocop disable/enable comments if specified
+      # Add rubocop disable/enable comments if specified and lines are too long
       if options[:disable_rubocop]
-        output.unshift("# rubocop:disable Layout/LineLength")
-        output.push("# rubocop:enable Layout/LineLength")
+        # Check if any line in the output exceeds 120 characters
+        has_long_lines = output.any? { |line| line.length > 120 }
+
+        if has_long_lines
+          output.unshift("# rubocop:disable Layout/LineLength")
+          output.push("# rubocop:enable Layout/LineLength")
+        end
       end
 
       output.join($/)
